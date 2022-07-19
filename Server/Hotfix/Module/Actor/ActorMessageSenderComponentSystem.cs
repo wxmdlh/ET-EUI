@@ -42,6 +42,7 @@ namespace ET
         }
     }
 
+    [FriendClass(typeof(ActorMessageSenderComponent))]
     public static class ActorMessageSenderComponentSystem
     {
         public static void Run(ActorMessageSender self, IActorResponse response)
@@ -137,7 +138,7 @@ namespace ET
                 throw new Exception($"actor id is 0: {request}");
             }
 
-            (ushort _, MemoryStream stream) = MessageSerializeHelper.MessageToStream(0, request);
+            (ushort _, MemoryStream stream) = MessageSerializeHelper.MessageToStream(request);
 
             return await self.Call(actorId, request.RpcId, stream, needException);
         }

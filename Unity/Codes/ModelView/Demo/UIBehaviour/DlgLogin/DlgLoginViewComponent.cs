@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace ET
 {
+	[ComponentOf(typeof(UIBaseWindow))]
+	[EnableMethod]
 	public  class DlgLoginViewComponent : Entity,IAwake,IDestroy 
 	{
 		public UnityEngine.UI.Button E_LoginButton

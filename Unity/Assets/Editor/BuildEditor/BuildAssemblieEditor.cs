@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using ILRuntime.Mono.Cecil;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Compilation;
@@ -14,7 +13,21 @@ namespace ET
     {
         private const string CodeDir = "Assets/Bundles/Code/";
 
-        [MenuItem("Tools/BuildCodeDebug _F5")]
+        [MenuItem("Tools/Build/EnableAutoBuildCodeDebug _F1")]
+        public static void SetAutoBuildCode()
+        {
+            PlayerPrefs.SetInt("AutoBuild", 1);
+            ShowNotification("AutoBuildCode Enabled");
+        }
+        
+        [MenuItem("Tools/Build/DisableAutoBuildCodeDebug _F2")]
+        public static void CancelAutoBuildCode()
+        {
+            PlayerPrefs.DeleteKey("AutoBuild");
+            ShowNotification("AutoBuildCode Disabled");
+        }
+
+        [MenuItem("Tools/Build/BuildCodeDebug _F5")]
         public static void BuildCodeDebug()
         {
             BuildAssemblieEditor.BuildMuteAssembly("Code", new []
@@ -30,7 +43,7 @@ namespace ET
             AssetDatabase.Refresh();
         }
         
-        [MenuItem("Tools/BuildCodeRelease _F6")]
+        [MenuItem("Tools/Build/BuildCodeRelease _F6")]
         public static void BuildCodeRelease()
         {
             BuildAssemblieEditor.BuildMuteAssembly("Code", new []
@@ -46,7 +59,7 @@ namespace ET
             AssetDatabase.Refresh();
         }
         
-        [MenuItem("Tools/BuildData _F7")]
+        [MenuItem("Tools/Build/BuildData _F7")]
         public static void BuildData()
         {
             BuildAssemblieEditor.BuildMuteAssembly("Data", new []
@@ -57,7 +70,7 @@ namespace ET
         }
         
         
-        [MenuItem("Tools/BuildLogic _F8")]
+        [MenuItem("Tools/Build/BuildLogic _F8")]
         public static void BuildLogic()
         {
             string[] logicFiles = Directory.GetFiles(Define.BuildOutputDir, "Logic_*");
@@ -89,12 +102,13 @@ namespace ET
                 }
             }
 
+            if (!Directory.Exists(Define.BuildOutputDir))
+                Directory.CreateDirectory(Define.BuildOutputDir);
+
             string dllPath = Path.Combine(Define.BuildOutputDir, $"{assemblyName}.dll");
             string pdbPath = Path.Combine(Define.BuildOutputDir, $"{assemblyName}.pdb");
             File.Delete(dllPath);
             File.Delete(pdbPath);
-
-            Directory.CreateDirectory(Define.BuildOutputDir);
 
             AssemblyBuilder assemblyBuilder = new AssemblyBuilder(dllPath, scripts.ToArray());
             
@@ -135,6 +149,8 @@ namespace ET
 
                 if (errorCount > 0)
                 {
+					if (PlayerPrefs.GetInt("AutoBuild") == 1)//如果开启了自动编译要Cancel掉，否则会死循环
+						CancelAutoBuildCode();
                     for (int i = 0; i < compilerMessages.Length; i++)
                     {
                         if (compilerMessages[i].type == CompilerMessageType.Error)
@@ -180,6 +196,15 @@ namespace ET
             Debug.Log("set assetbundle success!");
             
             Debug.Log("build success!");
+            //反射获取当前Game视图，提示编译完成
+            ShowNotification("Build Code Success");
+        }
+
+        public static void ShowNotification(string tips)
+        {
+            var game = EditorWindow.GetWindow(typeof(EditorWindow).Assembly.GetType("UnityEditor.GameView"));
+            game?.ShowNotification(new GUIContent($"{tips}"));
         }
     }
+    
 }

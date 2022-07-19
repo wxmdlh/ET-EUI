@@ -21,7 +21,12 @@ namespace ET
             self.Destroy();
         }
     }
-    
+
+    [FriendClass(typeof(ShowWindowData))]
+    [FriendClass(typeof(WindowCoreData))]
+    [FriendClass(typeof(UIPathComponent))]
+    [FriendClass(typeof(UIBaseWindow))]
+    [FriendClass(typeof(UIComponent))]
     public static class UIComponentSystem
     {
         public static void Awake(this UIComponent self)
@@ -296,7 +301,7 @@ namespace ET
                 Log.Warning($"{windowsId} is not loaded!");
                 return null;
             }
-
+       
             if (isNeedShowState )
             {
                 if ( !self.IsWindowVisible(windowsId) )

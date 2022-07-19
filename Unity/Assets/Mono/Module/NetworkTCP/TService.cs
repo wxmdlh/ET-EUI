@@ -19,12 +19,23 @@ namespace ET
 
 		public TService(ThreadSynchronizationContext threadSynchronizationContext, ServiceType serviceType)
 		{
+			this.foreachAction = channelId =>
+			{
+				TChannel tChannel = this.Get(channelId);
+				tChannel?.Update();
+			};
 			this.ServiceType = serviceType;
 			this.ThreadSynchronizationContext = threadSynchronizationContext;
 		}
 
 		public TService(ThreadSynchronizationContext threadSynchronizationContext, IPEndPoint ipEndPoint, ServiceType serviceType)
 		{
+			this.foreachAction = channelId =>
+			{
+				TChannel tChannel = this.Get(channelId);
+				tChannel?.Update();
+			};
+			
 			this.ServiceType = serviceType;
 			this.ThreadSynchronizationContext = threadSynchronizationContext;
 			
@@ -59,10 +70,7 @@ namespace ET
 			{
 				return;
 			}
-			
-			// 开始新的accept
-			this.AcceptAsync();
-			
+
 			if (socketError != SocketError.Success)
 			{
 				Log.Error($"accept error {socketError}");
@@ -81,7 +89,10 @@ namespace ET
 			catch (Exception exception)
 			{
 				Log.Error(exception);
-			}			
+			}		
+			
+			// 开始新的accept
+			this.AcceptAsync();
 		}
 		
 
@@ -161,14 +172,12 @@ namespace ET
 				Log.Error(e);
 			}
 		}
-		
+
+		private readonly Action<long> foreachAction;
+
 		public override void Update()
 		{
-			foreach (long channelId in this.NeedStartSend)
-			{
-				TChannel tChannel = this.Get(channelId);
-				tChannel?.Update();
-			}
+			this.NeedStartSend.Foreach(this.foreachAction);
 			this.NeedStartSend.Clear();
 		}
 		

@@ -2,6 +2,18 @@
 
 namespace ET
 {
+    public interface IUILogic
+    {
+        
+    }
+
+    public interface IUIScrollItem
+    {
+        
+    }
+    
+    [ComponentOf(typeof(Scene))]
+    [ChildType(typeof(UIBaseWindow))]
     public class UIComponent : Entity,IAwake,IDestroy
     {
         public HashSet<WindowID> LoadingWindows                = new HashSet<WindowID>();

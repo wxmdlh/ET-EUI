@@ -42,6 +42,8 @@ namespace ET
         }
     }
 
+    [FriendClass(typeof(ActorLocationSenderComponent))]
+    [FriendClass(typeof(ActorLocationSender))]
     public static class ActorLocationSenderComponentSystem
     {
         public static void Check(this ActorLocationSenderComponent self)
@@ -104,7 +106,7 @@ namespace ET
             // 先序列化好
             int rpcId = ActorMessageSenderComponent.Instance.GetRpcId();
             iActorRequest.RpcId = rpcId;
-            (ushort _, MemoryStream stream) = MessageSerializeHelper.MessageToStream(0, iActorRequest);
+            (ushort _, MemoryStream stream) = MessageSerializeHelper.MessageToStream(iActorRequest);
             
             long actorLocationSenderInstanceId = actorLocationSender.InstanceId;
             using (await CoroutineLockComponent.Instance.Wait(CoroutineLockType.ActorLocationSender, entityId))

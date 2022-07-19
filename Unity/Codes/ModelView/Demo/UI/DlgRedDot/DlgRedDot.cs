@@ -1,6 +1,7 @@
 ﻿namespace ET
 {
-	public  class DlgRedDot :Entity,IAwake
+	[ComponentOf(typeof(UIBaseWindow))]
+	public  class DlgRedDot :Entity,IAwake,IUILogic
 	{
 
 		public DlgRedDotViewComponent View { get => this.Parent.GetComponent<DlgRedDotViewComponent>();}

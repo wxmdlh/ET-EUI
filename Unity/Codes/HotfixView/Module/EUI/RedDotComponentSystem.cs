@@ -8,7 +8,7 @@ namespace ET
     {
         public override void Awake(RedDotComponent self)
         {
-           Game.Scene.GetComponent<ResourcesComponent>().LoadBundleAsync("RedDot".StringToAB()).Coroutine();
+           
         }
     }
 
@@ -30,6 +30,7 @@ namespace ET
         }
     }
 
+    [FriendClass(typeof(RedDotComponent))]
     public static class RedDotComponentSystem
     {
         public static void AddRedDotNode(this RedDotComponent self, string parent, string target, bool isNeedShowNum)

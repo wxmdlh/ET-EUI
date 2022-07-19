@@ -51,14 +51,34 @@ namespace ET
             loopScrollRect.RefillCells();
         }
 
+        public static void SetVisible(this Transform transform, bool isVisible)
+        {
+            if (null == transform)
+            {
+                Log.Error("uibehaviour is null!");
+                return;
+            }
+
+            if (null == transform.gameObject)
+            {
+                Log.Error("uiBehaviour gameObject is null!");
+                return;
+            }
+            
+            if (transform.gameObject.activeSelf == isVisible)
+            {
+                return;
+            }
+            transform.gameObject.SetActive(isVisible);
+        }
 
 
         public  static void SetTogglesInteractable(this ToggleGroup toggleGroup, bool isEnable)
         {
            var toggles = toggleGroup.transform.GetComponentsInChildren<Toggle>();
-           foreach (var toggle in toggles)
+           for (int i = 0; i < toggles.Length; i++)
            {
-               toggle.interactable = isEnable;
+               toggles[i].interactable = isEnable;
            }
         }
         
@@ -98,33 +118,8 @@ namespace ET
             toggle.onValueChanged?.Invoke(isSelected);
         }
         
-        
-        public static void AddUIScrollItems<T>(this Entity self, ref Dictionary<int, T> dictionary, int count)  where T : Entity,IAwake
-        {
-            if (dictionary == null)
-            {
-                dictionary = new Dictionary<int, T>();
-            }
-            
-            if (count <= 0)
-            {
-                return;
-            }
-            
-            foreach (var item in dictionary)
-            {
-                item.Value.Dispose();
-            }
-            dictionary.Clear();
-            for (int i = 0; i <= count; i++)
-            {
-                T itemServer = self.AddChild<T>(true);
-                dictionary.Add(i , itemServer);
-            }
-        }
-        
-        
-        public static void RemoveUIScrollItems<T>(this Entity self, ref Dictionary<int, T> dictionary)  where T : Entity
+
+        public static void RemoveUIScrollItems<K,T>(this K self, ref Dictionary<int, T> dictionary) where K : Entity,IUILogic  where T : Entity,IUIScrollItem
         {
             if (dictionary == null)
             {
@@ -154,6 +149,60 @@ namespace ET
         #endregion
         
   #region UI按钮事件
+
+      public static void AddListenerAsyncWithId(this Button button, Func<int, ETTask> action,int id)
+      { 
+          button.onClick.RemoveAllListeners();
+
+          async ETTask clickActionAsync()
+          {
+              UIEventComponent.Instance?.SetUIClicked(true);
+              await action(id);
+              UIEventComponent.Instance?.SetUIClicked(false);
+          }
+                   
+          button.onClick.AddListener(() =>
+          {
+              if ( UIEventComponent.Instance == null)
+              {
+                  return;
+              }
+
+              if (UIEventComponent.Instance.IsClicked)
+              {
+                  return;
+              }
+                       
+              clickActionAsync().Coroutine();
+          });
+      }
+      
+      public static void AddListenerAsync(this Button button, Func<ETTask> action)
+      { 
+          button.onClick.RemoveAllListeners();
+
+          async ETTask clickActionAsync()
+          {
+              UIEventComponent.Instance?.SetUIClicked(true);
+              await action();
+              UIEventComponent.Instance?.SetUIClicked(false);
+          }
+               
+          button.onClick.AddListener(() =>
+          {
+              if ( UIEventComponent.Instance == null)
+              {
+                  return;
+              }
+
+              if (UIEventComponent.Instance.IsClicked)
+              {
+                  return;
+              }
+                   
+              clickActionAsync().Coroutine();
+          });
+      }
 
         public static void AddListener(this Toggle toggle, UnityAction<bool> selectEventHandler)
         {
@@ -190,17 +239,64 @@ namespace ET
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => { clickEventHandler(param1 , param2);  });
         }
+
+
+       public static void AddListener(this ToggleGroup toggleGroup, UnityAction<int> selectEventHandler)
+       {
+           var togglesList = toggleGroup.GetComponentsInChildren<Toggle>();
+           for (int i = 0; i < togglesList.Length; i++)
+           {
+               int index = i;
+               togglesList[i].AddListener((isOn) => 
+               {
+                   if (isOn)
+                   {
+                       selectEventHandler(index);
+                   }
+               });
+           }
+       }
+
         
         /// <summary>
         /// 注册窗口关闭事件
         /// </summary>
         /// <OtherParam name="self"></OtherParam>
         /// <OtherParam name="closeButton"></OtherParam>
-        public static void RegisterCloseEvent(this Entity self,Button closeButton) 
+        public static void RegisterCloseEvent<T>(this Entity self,Button closeButton)  where T : Entity,IAwake,IUILogic
         {
             closeButton.onClick.RemoveAllListeners();
             closeButton.onClick.AddListener(() => { self.DomainScene().GetComponent<UIComponent>().HideWindow(self.GetParent<UIBaseWindow>().WindowID); });
         }
+
+
+
+        public static void RegisterEvent(this EventTrigger trigger, EventTriggerType eventType, UnityAction<BaseEventData> callback)
+        {
+            EventTrigger.Entry entry = null;
+
+            // 查找是否已经存在要注册的事件
+            foreach (EventTrigger.Entry existingEntry in trigger.triggers)
+            {
+                if (existingEntry.eventID == eventType)
+                {
+                    entry = existingEntry;
+                    break;
+                }
+            }
+            
+            // 如果这个事件不存在，就创建新的实例
+            if (entry == null)
+            {
+                entry = new EventTrigger.Entry();
+                entry.eventID = eventType;
+            }
+            // 添加触发回调并注册事件
+            entry.callback.AddListener(callback);
+            trigger.triggers.Add(entry);
+        }
+
+
         #endregion
         
     }

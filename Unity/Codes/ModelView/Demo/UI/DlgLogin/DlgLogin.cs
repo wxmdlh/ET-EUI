@@ -2,10 +2,12 @@
 
 namespace ET
 {
-	public  class DlgLogin :Entity,IAwake
+	[ComponentOf(typeof(UIBaseWindow))]
+	public  class DlgLogin :Entity,IAwake,IUILogic
 	{
 
 		public DlgLoginViewComponent View { get => this.Parent.GetComponent<DlgLoginViewComponent>();} 
+
 		
 	}
 }

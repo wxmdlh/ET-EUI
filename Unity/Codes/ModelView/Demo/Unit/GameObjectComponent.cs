@@ -2,8 +2,9 @@ using UnityEngine;
 
 namespace ET
 {
+    [ComponentOf(typeof(Unit))]
     public class GameObjectComponent: Entity, IAwake, IDestroy
     {
-        public GameObject GameObject;
+        public GameObject GameObject { get; set; }
     }
 }
