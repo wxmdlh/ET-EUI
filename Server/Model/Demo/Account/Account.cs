@@ -5,7 +5,7 @@
         General = 0,
         BlackList = 1,
     }
-
+    
     public class Account: Entity, IAwake
     {
         public string AccountName; //账号名
