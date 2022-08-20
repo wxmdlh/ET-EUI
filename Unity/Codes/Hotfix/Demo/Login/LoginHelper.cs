@@ -50,6 +50,7 @@ namespace ET
             try
             {
                 accountSession = zoneScene.GetComponent<NetKcpComponent>().Create(NetworkHelper.ToIPEndPoint(address));
+                password = MD5Helper.StringMD5(password);
                 a2CLoginAccount = (A2C_LoginAccount) await accountSession.Call(new C2A_LoginAccount() { AccountName = account, Password = password });
             }
             catch (Exception e)
@@ -67,6 +68,9 @@ namespace ET
 
             //将该Session赋值给当前场景上的Session
             zoneScene.AddComponent<SessionComponent>().Session = accountSession;
+            //心跳检测机制 用于服务器端检测客户端是否在线。服务器端每两秒给客户端发一次消息。
+            zoneScene.GetComponent<SessionComponent>().Session.AddComponent<PingComponent>();
+            
             //将当前Token和AccountId进行保存
             zoneScene.GetComponent<AccountInfoComponent>().Token = a2CLoginAccount.Token;
             zoneScene.GetComponent<AccountInfoComponent>().AccountId = a2CLoginAccount.AccountId;
