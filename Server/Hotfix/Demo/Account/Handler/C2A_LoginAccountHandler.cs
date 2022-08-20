@@ -59,6 +59,7 @@ namespace ET
             //当在某个代码段中使用了类的实例，而希望无论因为什么原因，只要离开了这个代码段就自动调用这个类实例的Dispose。 要达到这样的目的，用try...catch来捕捉异常也是可以的，但用using也很方便。
             using (session.AddComponent<SessionLockingComponent>())
             {
+                //用于锁定，只有一个账号操作完后，另一个账号才能进来操作。
                 using (await CoroutineLockComponent.Instance.Wait(CoroutineLockType.LoginAccount, request.AccountName.Trim().GetHashCode()))
                 {
                     //从数据库中查询账号是否存在，如果存在在进一步判断密码是否正确，如果不存在则创建该账号并保存
@@ -99,6 +100,16 @@ namespace ET
                         account.AccountType = (int) AccountType.General;
                         await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<Account>(account);
                     }
+                    
+                    //实现顶号操作
+                    long accoutnSessionInstanceId = session.DomainScene().GetComponent<AccountSessionsComponent>().Get(account.Id);
+                    Session otherSession=Game.EventSystem.Get(accoutnSessionInstanceId) as Session;
+                    otherSession?.Send(new A2C_Disconnect(){Error=0});
+                    otherSession?.Disconnect().Coroutine();
+                   session.DomainScene().Domain.GetComponent<AccountSessionsComponent>().Add(account.Id,session.InstanceId);
+                   
+                   //十分钟后还没操作，将玩家踢下线
+                   session.AddComponent<AccountCheckOutTimeComponent, long>(account.Id);
 
                     string Token = TimeHelper.ServerNow().ToString() + RandomHelper.RandomNumber(int.MinValue, int.MaxValue);
 
