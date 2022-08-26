@@ -48,7 +48,7 @@ namespace ET
             }
 
             //限定密码必须为6-15位的数字、字母
-            if (!Regex.IsMatch(request.Password.Trim(), @"^(?=.*[0-9].*)(?=.*[A-Z].*)(?=.*[a-z].*).{6,15}$"))
+            if (!Regex.IsMatch(request.Password.Trim(), @"^[A-Za-z0-9]+$"))
             {
                 response.Error = ErrorCode.ERR_PasswordFormError;
                 reply();
@@ -100,16 +100,31 @@ namespace ET
                         account.AccountType = (int) AccountType.General;
                         await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<Account>(account);
                     }
-                    
+
+                    //实现从客户端向登录账号中心服务器发送消息。
+                    StartSceneConfig startSceneConfig = StartSceneConfigCategory.Instance.GetBySceneName(session.DomainZone(), "LoginCenter");
+                    long loginCenterInstanceId = startSceneConfig.InstanceId;
+                    var loginAccountResponse =
+                            (L2A_LoginAccountResponse) await ActorMessageSenderComponent.Instance.Call(loginCenterInstanceId,
+                                new A2L_LoginAccountRequest() { AccountId = account.InstanceId });
+                    if (loginAccountResponse.Error != ErrorCode.ERR_Success)
+                    {
+                        response.Error = loginAccountResponse.Error;
+                        reply();
+                        session?.Disconnect().Coroutine();
+                        account?.Dispose();
+                        return;
+                    }
+
                     //实现顶号操作
                     long accoutnSessionInstanceId = session.DomainScene().GetComponent<AccountSessionsComponent>().Get(account.Id);
-                    Session otherSession=Game.EventSystem.Get(accoutnSessionInstanceId) as Session;
-                    otherSession?.Send(new A2C_Disconnect(){Error=0});
+                    Session otherSession = Game.EventSystem.Get(accoutnSessionInstanceId) as Session;
+                    otherSession?.Send(new A2C_Disconnect() { Error = 0 });
                     otherSession?.Disconnect().Coroutine();
-                   session.DomainScene().Domain.GetComponent<AccountSessionsComponent>().Add(account.Id,session.InstanceId);
-                   
-                   //十分钟后还没操作，将玩家踢下线
-                   session.AddComponent<AccountCheckOutTimeComponent, long>(account.Id);
+                    session.DomainScene().Domain.GetComponent<AccountSessionsComponent>().Add(account.Id, session.InstanceId);
+
+                    //十分钟后还没操作，将玩家踢下线
+                    session.AddComponent<AccountCheckOutTimeComponent, long>(account.Id);
 
                     string Token = TimeHelper.ServerNow().ToString() + RandomHelper.RandomNumber(int.MinValue, int.MaxValue);
 
