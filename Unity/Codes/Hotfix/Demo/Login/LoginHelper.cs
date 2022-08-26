@@ -2,7 +2,7 @@ using System;
 
 namespace ET
 {
-    [FriendClass(typeof(AccountInfoComponent))]
+    [FriendClass(typeof (AccountInfoComponent))]
     public static class LoginHelper
     {
         // public static async ETTask Login(Scene zoneScene, string address, string account, string password)
@@ -70,11 +70,49 @@ namespace ET
             zoneScene.AddComponent<SessionComponent>().Session = accountSession;
             //心跳检测机制 用于服务器端检测客户端是否在线。服务器端每两秒给客户端发一次消息。
             zoneScene.GetComponent<SessionComponent>().Session.AddComponent<PingComponent>();
-            
+
             //将当前Token和AccountId进行保存
             zoneScene.GetComponent<AccountInfoComponent>().Token = a2CLoginAccount.Token;
             zoneScene.GetComponent<AccountInfoComponent>().AccountId = a2CLoginAccount.AccountId;
-            
+
+            return ErrorCode.ERR_Success;
+        }
+
+        /// <summary>
+        /// 获取服务器端信息
+        /// </summary>
+        /// <param name="zoneScene"></param>
+        /// <returns></returns>
+        public static async ETTask<int> GetServerInfos(Scene zoneScene)
+        {
+            A2C_GetServerInfos a2CGetServerInfos = null;
+
+            try
+            {
+                a2CGetServerInfos = (A2C_GetServerInfos) await zoneScene.GetComponent<SessionComponent>().Session.Call(new C2A_GetServerInfos()
+                {
+                    AccountId = zoneScene.GetComponent<AccountInfoComponent>().AccountId,
+                    Token = zoneScene.GetComponent<AccountInfoComponent>().Token
+                });
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+                return ErrorCode.ERR_NetWorkError;
+            }
+
+            if (a2CGetServerInfos.Error != ErrorCode.ERR_Success)
+            {
+                return a2CGetServerInfos.Error;
+            }
+            //对游戏服务器下发的信息进行保存
+            foreach (var serverInfoProto in a2CGetServerInfos.ServerInfosList)
+            {
+                ServerInfo serverInfo = zoneScene.GetComponent<ServerInfosComponent>().AddChild<ServerInfo>();
+                serverInfo.FromMessage(serverInfoProto);
+                zoneScene.GetComponent<ServerInfosComponent>().Add(serverInfo);
+            }
+
             return ErrorCode.ERR_Success;
         }
     }

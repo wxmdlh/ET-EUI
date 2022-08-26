@@ -48,5 +48,10 @@ namespace ET
         /// 多次重复登录
         /// </summary>
         public const int ERR_RequestRepeatedly = 200008;
+        
+        /// <summary>
+        /// Token错误
+        /// </summary>
+        public const int ERR_TokenError = 200009;
     }
 }
