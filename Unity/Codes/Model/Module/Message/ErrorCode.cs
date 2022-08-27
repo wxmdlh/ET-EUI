@@ -48,10 +48,20 @@ namespace ET
         /// 多次重复登录
         /// </summary>
         public const int ERR_RequestRepeatedly = 200008;
-        
+
         /// <summary>
         /// Token错误
         /// </summary>
         public const int ERR_TokenError = 200009;
+
+        /// <summary>
+        /// 角色名字为空
+        /// </summary>
+        public const int ERR_RoleNameIsNull = 200010;
+        
+        /// <summary>
+        /// 角色名字重复
+        /// </summary>
+        public const int ERR_RoleNameSame = 200011;
     }
 }
