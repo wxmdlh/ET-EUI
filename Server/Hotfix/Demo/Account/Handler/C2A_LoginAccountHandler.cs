@@ -74,44 +74,44 @@ namespace ET
 
                         #region 如果该账号存在，ABoardGame表中GameID也存在，则更新MakeTime
 
-                        // var aboardGameList = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
-                        //         .Query<ABoardGame>(d => d.GameID.Equals("-2105361331"));
-                        //
-                        // if (aboardGameList != null && aboardGameList.Count > 0)
-                        // {
-                        //     aBoardGame = aboardGameList[0];
-                        //     await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
-                        //             .FindOneAndUpdateAsync<ABoardGame>(aBoardGame, "MakeTime", "2022/9/13 14:22:00 ");
-                        // }
+                        var aboardGameList = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                                .Query<ABoardGame>(d => d.OwnerAsID == account.AccountID);
+
+                        if (aboardGameList != null && aboardGameList.Count > 0)
+                        {
+                            aBoardGame = aboardGameList[0];
+                            await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                                    .FindOneAndUpdateAsync<ABoardGame>(aBoardGame, "MakeTime", "2022/9/13 14:22:00 ");
+                        }
 
                         #endregion
 
                         #region 同一账号，多次插入不同ABoardGame
 
-                        aBoardGame = session.AddChild<ABoardGame>();
-                        aBoardGame.MakeTime = DateTime.Now.ToString();
-                        aBoardGame.OwnerAsID = account.AccountID;
-                        await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<ABoardGame>(aBoardGame);
-                        
-                        var aBoardGameList1 = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
-                                .Query<ABoardGame>(d => d.OwnerAsID.Equals(account.AccountID));
-                        if (aBoardGameList1 != null && aBoardGameList1.Count > 0)
-                        {
-                            for (int i = 0; i < aBoardGameList1.Count; i++)
-                            {
-                                Log.Debug($"ABoardGame{i},制作时间为 {aBoardGameList1[i].MakeTime}");
-                            }
-                        
-                            DateTime.TryParse(aBoardGameList1[aBoardGameList1.Count-1].MakeTime, out var ultimate);
-                            DateTime.TryParse(aBoardGameList1[aBoardGameList1.Count-2].MakeTime, out var penultimate);
-                            System.TimeSpan t = ultimate - penultimate;
-                        
-                            await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
-                                    .FindOneAndUpdateAsync<Account>(account, "IntervalTime", t.ToString());
-                        
-                            await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
-                                    .FindOneAndUpdateAsync<Account>(account, "UseOfNumber", aBoardGameList1.Count.ToString());
-                        }
+                        // aBoardGame = session.AddChild<ABoardGame>();
+                        // aBoardGame.MakeTime = DateTime.Now.ToString();
+                        // aBoardGame.OwnerAsID = account.AccountID;
+                        // await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<ABoardGame>(aBoardGame);
+                        //
+                        // var aBoardGameList1 = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //         .Query<ABoardGame>(d => d.OwnerAsID.Equals(account.AccountID));
+                        // if (aBoardGameList1 != null && aBoardGameList1.Count > 0)
+                        // {
+                        //     for (int i = 0; i < aBoardGameList1.Count; i++)
+                        //     {
+                        //         Log.Debug($"ABoardGame{i},制作时间为 {aBoardGameList1[i].MakeTime}");
+                        //     }
+                        //
+                        //     DateTime.TryParse(aBoardGameList1[aBoardGameList1.Count-1].MakeTime, out var ultimate);
+                        //     DateTime.TryParse(aBoardGameList1[aBoardGameList1.Count-2].MakeTime, out var penultimate);
+                        //     System.TimeSpan t = ultimate - penultimate;
+                        //
+                        //     await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //             .FindOneAndUpdateAsync<Account>(account, "IntervalTime", t.ToString());
+                        //
+                        //     await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //             .FindOneAndUpdateAsync<Account>(account, "UseOfNumber", aBoardGameList1.Count.ToString());
+                        // }
 
                         #endregion
 
