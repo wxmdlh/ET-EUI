@@ -250,7 +250,28 @@ namespace ET
 
         #endregion
 
-        #region FindOneAndUpdateAsync
+        #region FindOneAndUpdateAsync更新一条数据中的某一项
+
+        public static async ETTask FindOneAndUpdateAsync<T>(this DBComponent self, T entity, string key, string value, string collection = null)
+                where T : Entity
+        {
+            if (entity == null)
+            {
+                Log.Error($"save entity is null: {typeof (T).Name}");
+
+                return;
+            }
+
+            if (collection == null)
+            {
+                collection = entity.GetType().Name;
+            }
+
+            using (await CoroutineLockComponent.Instance.Wait(CoroutineLockType.DB, entity.Id % DBComponent.TaskCount))
+            {
+                await self.GetCollection(collection).FindOneAndUpdateAsync(d => d.Id == entity.Id, Builders<Entity>.Update.Set(key, value));
+            }
+        }
 
         #endregion
     }

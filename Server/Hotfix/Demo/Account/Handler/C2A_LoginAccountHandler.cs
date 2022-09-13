@@ -51,26 +51,40 @@ namespace ET
                         account = accountInfoList[0];
                         session.AddChild(account);
 
-                        //如果账号存在，开始向ABoardGame中插入一个数据项
-                        //数据项插入
-                        await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
-                                .InsertBatch<ABoardGame>(new List<ABoardGame>()
-                                {
-                                    new ABoardGame()
-                                    {
-                                        GameID=123,
-                                    }
-                                });
-                        
-                        //如果账号存在，开始向ABoardGame中插入一个数据项
-                        await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
-                                .InsertBatch<SandToyTable>(new List<SandToyTable>()
-                                {
-                                    new SandToyTable()
-                                    {
-                                        Order=1,
-                                    }
-                                });
+                        // // 如果账号存在，开始向ABoardGame中插入一个数据项
+                        // //数据项插入
+                        // await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //         .InsertBatch<ABoardGame>(new List<ABoardGame>()
+                        //         {
+                        //             new ABoardGame()
+                        //             {
+                        //                 GameID=123,
+                        //             }
+                        //         });
+                        //
+                        // //如果账号存在，开始向ABoardGame中插入一个数据项
+                        // await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //         .InsertBatch<SandToyTable>(new List<SandToyTable>()
+                        //         {
+                        //             new SandToyTable()
+                        //             {
+                        //                 Order=1,
+                        //             }
+                        //         });
+
+                        #region 如果该账号存在，ABoardGame表中GameID也存在，则更新MakeTime
+
+                        // var aboardGameList = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //         .Query<ABoardGame>(d => d.GameID.Equals("-2105361331"));
+                        //
+                        // if (aboardGameList != null && aboardGameList.Count > 0)
+                        // {
+                        //     aBoardGame = aboardGameList[0];
+                        //     await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //             .FindOneAndUpdateAsync<ABoardGame>(aBoardGame, "MakeTime", "2022/9/13 14:22:00 ");
+                        // }
+
+                        #endregion
 
                         Log.Debug($"该账号存在{request.AccountName}");
                     }
