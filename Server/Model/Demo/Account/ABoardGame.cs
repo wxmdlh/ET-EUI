@@ -32,6 +32,11 @@ namespace ET
         /// </summary>
         public string ImagePath;
 
+        /// <summary>
+        /// 该局游戏所属用户ID
+        /// </summary>
+        public long OwnerAsID;
+
         //----------------------------------------------------------------------------------------------------
         //可以修改变量
 

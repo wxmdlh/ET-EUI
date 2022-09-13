@@ -86,6 +86,35 @@ namespace ET
 
                         #endregion
 
+                        #region 同一账号，多次插入不同ABoardGame
+
+                        aBoardGame = session.AddChild<ABoardGame>();
+                        aBoardGame.MakeTime = DateTime.Now.ToString();
+                        aBoardGame.OwnerAsID = account.AccountID;
+                        await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<ABoardGame>(aBoardGame);
+                        
+                        var aBoardGameList1 = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                                .Query<ABoardGame>(d => d.OwnerAsID.Equals(account.AccountID));
+                        if (aBoardGameList1 != null && aBoardGameList1.Count > 0)
+                        {
+                            for (int i = 0; i < aBoardGameList1.Count; i++)
+                            {
+                                Log.Debug($"ABoardGame{i},制作时间为 {aBoardGameList1[i].MakeTime}");
+                            }
+                        
+                            DateTime.TryParse(aBoardGameList1[aBoardGameList1.Count-1].MakeTime, out var ultimate);
+                            DateTime.TryParse(aBoardGameList1[aBoardGameList1.Count-2].MakeTime, out var penultimate);
+                            System.TimeSpan t = ultimate - penultimate;
+                        
+                            await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                                    .FindOneAndUpdateAsync<Account>(account, "IntervalTime", t.ToString());
+                        
+                            await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                                    .FindOneAndUpdateAsync<Account>(account, "UseOfNumber", aBoardGameList1.Count.ToString());
+                        }
+
+                        #endregion
+
                         Log.Debug($"该账号存在{request.AccountName}");
                     }
                     else
@@ -93,13 +122,14 @@ namespace ET
                         account = session.AddChild<Account>();
                         account.AccountName = request.AccountName.Trim();
                         account.Password = request.Password;
-                        account.CreateTime = TimeHelper.ServerNow();
                         account.AccountType = (int) AccountType.General;
+                        account.AccountID = request.AccountName.GetHashCode();
                         //数据保存
                         await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<Account>(account);
 
                         aBoardGame = session.AddChild<ABoardGame>();
-                        aBoardGame.GameID = request.AccountName.Trim().GetHashCode();
+                        aBoardGame.MakeTime = DateTime.Now.ToString();
+                        aBoardGame.OwnerAsID = account.AccountID;
                         await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<ABoardGame>(aBoardGame);
 
                         sandToyTable = session.AddChild<SandToyTable>();
