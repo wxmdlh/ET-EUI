@@ -117,19 +117,51 @@ namespace ET
 
                         #region 同一账号，同一ABoardGame下，沙具的插入
 
-                        sandToyTable = session.AddChild<SandToyTable>();
-                        sandToyTable.Number = 0;
-                        await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<SandToyTable>(sandToyTable);
+                        // sandToyTable = session.AddChild<SandToyTable>();
+                        // sandToyTable.Number = 0;
+                        // await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<SandToyTable>(sandToyTable);
+                        //
+                        // var aBoardGameList2 = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //         .Query<ABoardGame>(d => d.OwnerAsID.Equals(account.AccountID));
+                        // if (aBoardGameList2 != null && aBoardGameList2.Count > 0)
+                        // {
+                        //     Log.Debug($"aBoardGameList2[0]存在");
+                        //
+                        //     await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //             .FindOneAndUpdateAsync<SandToyTable>(sandToyTable, "BelongABoardGameID",
+                        //                 aBoardGameList2[0].GameID.ToString());
+                        // }
 
-                        var aBoardGameList2 = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        #endregion
+
+                        #region 完整版一个账号如果存在 则多次插入不同的ABoardGame，每局ABoardGame，都可以插入多条SandToyTable
+
+                        aBoardGame = session.AddChild<ABoardGame>();
+                        aBoardGame.MakeTime = DateTime.Now.ToString();
+                        aBoardGame.OwnerAsID = account.AccountID;
+                        aBoardGame.GameID = RandomHelper.RandInt64();
+                        await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<ABoardGame>(aBoardGame);
+
+                        var aBoardGameList1 = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
                                 .Query<ABoardGame>(d => d.OwnerAsID.Equals(account.AccountID));
-                        if (aBoardGameList2 != null && aBoardGameList2.Count > 0)
+                        if (aBoardGameList1 != null && aBoardGameList1.Count > 0)
                         {
-                            Log.Debug($"aBoardGameList2[0]存在");
-
+                            //更新Account表
+                            DateTime.TryParse(aBoardGameList1[aBoardGameList1.Count - 1].MakeTime, out var ultimate);
+                            DateTime.TryParse(aBoardGameList1[aBoardGameList1.Count - 2].MakeTime, out var penultimate);
+                            System.TimeSpan t = ultimate - penultimate;
+                            //更新Account表中IntervalTime
                             await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
-                                    .FindOneAndUpdateAsync<SandToyTable>(sandToyTable, "BelongABoardGameID",
-                                        aBoardGameList2[0].GameID.ToString());
+                                    .FindOneAndUpdateAsync<Account>(account, "IntervalTime", t.ToString());
+                            //更新Account表中UseOfNumber
+                            await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                                    .FindOneAndUpdateAsync<Account>(account, "UseOfNumber", aBoardGameList1.Count.ToString());
+
+                            //更新SandToyTable表
+                            sandToyTable = session.AddChild<SandToyTable>();
+                            sandToyTable.Number = 0;
+                            sandToyTable.BelongABoardGameID = aBoardGameList1[aBoardGameList1.Count - 1].GameID;
+                            await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<SandToyTable>(sandToyTable);
                         }
 
                         #endregion
@@ -142,13 +174,13 @@ namespace ET
                         account.AccountName = request.AccountName.Trim();
                         account.Password = request.Password;
                         account.AccountType = (int) AccountType.General;
-                        account.AccountID = request.AccountName.GetHashCode();
+                        account.AccountID = RandomHelper.RandInt64();
                         //数据保存
                         await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<Account>(account);
 
                         aBoardGame = session.AddChild<ABoardGame>();
                         //TODO...GameID的设定
-                        aBoardGame.GameID = "一场游戏".GetHashCode();
+                        aBoardGame.GameID = RandomHelper.RandInt64();
                         aBoardGame.MakeTime = DateTime.Now.ToString();
                         aBoardGame.OwnerAsID = account.AccountID;
                         await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<ABoardGame>(aBoardGame);
