@@ -74,15 +74,15 @@ namespace ET
 
                         #region 如果该账号存在，ABoardGame表中GameID也存在，则更新MakeTime
 
-                        var aboardGameList = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
-                                .Query<ABoardGame>(d => d.OwnerAsID == account.AccountID);
-
-                        if (aboardGameList != null && aboardGameList.Count > 0)
-                        {
-                            aBoardGame = aboardGameList[0];
-                            await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
-                                    .FindOneAndUpdateAsync<ABoardGame>(aBoardGame, "MakeTime", "2022/9/13 14:22:00 ");
-                        }
+                        // var aboardGameList = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //         .Query<ABoardGame>(d => d.OwnerAsID == account.AccountID);
+                        //
+                        // if (aboardGameList != null && aboardGameList.Count > 0)
+                        // {
+                        //     aBoardGame = aboardGameList[0];
+                        //     await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //             .FindOneAndUpdateAsync<ABoardGame>(aBoardGame, "MakeTime", "2022/9/13 14:22:00 ");
+                        // }
 
                         #endregion
 
@@ -115,6 +115,25 @@ namespace ET
 
                         #endregion
 
+                        #region 同一账号，同一ABoardGame下，沙具的插入
+
+                        sandToyTable = session.AddChild<SandToyTable>();
+                        sandToyTable.Number = 0;
+                        await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<SandToyTable>(sandToyTable);
+
+                        var aBoardGameList2 = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                                .Query<ABoardGame>(d => d.OwnerAsID.Equals(account.AccountID));
+                        if (aBoardGameList2 != null && aBoardGameList2.Count > 0)
+                        {
+                            Log.Debug($"aBoardGameList2[0]存在");
+
+                            await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                                    .FindOneAndUpdateAsync<SandToyTable>(sandToyTable, "BelongABoardGameID",
+                                        aBoardGameList2[0].GameID.ToString());
+                        }
+
+                        #endregion
+
                         Log.Debug($"该账号存在{request.AccountName}");
                     }
                     else
@@ -128,12 +147,15 @@ namespace ET
                         await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<Account>(account);
 
                         aBoardGame = session.AddChild<ABoardGame>();
+                        //TODO...GameID的设定
+                        aBoardGame.GameID = "一场游戏".GetHashCode();
                         aBoardGame.MakeTime = DateTime.Now.ToString();
                         aBoardGame.OwnerAsID = account.AccountID;
                         await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<ABoardGame>(aBoardGame);
 
                         sandToyTable = session.AddChild<SandToyTable>();
                         sandToyTable.Number = 0;
+                        sandToyTable.BelongABoardGameID = aBoardGame.GameID;
                         await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<SandToyTable>(sandToyTable);
                     }
 

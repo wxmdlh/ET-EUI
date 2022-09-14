@@ -16,5 +16,10 @@
         /// 沙具象征意义
         /// </summary>
         public string SymbolicSignificance;
+
+        /// <summary>
+        /// 属于那一场游戏的GameID
+        /// </summary>
+        public long BelongABoardGameID;
     }
 }
