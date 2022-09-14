@@ -136,32 +136,46 @@ namespace ET
 
                         #region 完整版一个账号如果存在 则多次插入不同的ABoardGame，每局ABoardGame，都可以插入多条SandToyTable
 
-                        aBoardGame = session.AddChild<ABoardGame>();
-                        aBoardGame.MakeTime = DateTime.Now.ToString();
-                        aBoardGame.OwnerAsID = account.AccountID;
-                        aBoardGame.GameID = RandomHelper.RandInt64();
-                        await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<ABoardGame>(aBoardGame);
+                        // aBoardGame = session.AddChild<ABoardGame>();
+                        // aBoardGame.MakeTime = DateTime.Now.ToString();
+                        // aBoardGame.OwnerAsID = account.AccountID;
+                        // aBoardGame.GameID = RandomHelper.RandInt64();
+                        // await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<ABoardGame>(aBoardGame);
+                        //
+                        // var aBoardGameList1 = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //         .Query<ABoardGame>(d => d.OwnerAsID.Equals(account.AccountID));
+                        // if (aBoardGameList1 != null && aBoardGameList1.Count > 0)
+                        // {
+                        //     //更新Account表
+                        //     DateTime.TryParse(aBoardGameList1[aBoardGameList1.Count - 1].MakeTime, out var ultimate);
+                        //     DateTime.TryParse(aBoardGameList1[aBoardGameList1.Count - 2].MakeTime, out var penultimate);
+                        //     System.TimeSpan t = ultimate - penultimate;
+                        //     //更新Account表中IntervalTime
+                        //     await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //             .FindOneAndUpdateAsync<Account>(account, "IntervalTime", t.ToString());
+                        //     //更新Account表中UseOfNumber
+                        //     await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                        //             .FindOneAndUpdateAsync<Account>(account, "UseOfNumber", aBoardGameList1.Count.ToString());
+                        //
+                        //     //更新SandToyTable表
+                        //     sandToyTable = session.AddChild<SandToyTable>();
+                        //     sandToyTable.Number = 0;
+                        //     sandToyTable.BelongABoardGameID = aBoardGameList1[aBoardGameList1.Count - 1].GameID;
+                        //     await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<SandToyTable>(sandToyTable);
+                        // }
 
-                        var aBoardGameList1 = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
-                                .Query<ABoardGame>(d => d.OwnerAsID.Equals(account.AccountID));
-                        if (aBoardGameList1 != null && aBoardGameList1.Count > 0)
+                        #endregion
+
+                        #region 删除表中一条数据项
+
+                        var aBoardGameList2 = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                                .Query<ABoardGame>(d => d.OwnerAsID == account.AccountID);
+                        if (aBoardGameList2 != null && aBoardGameList2.Count > 0)
                         {
-                            //更新Account表
-                            DateTime.TryParse(aBoardGameList1[aBoardGameList1.Count - 1].MakeTime, out var ultimate);
-                            DateTime.TryParse(aBoardGameList1[aBoardGameList1.Count - 2].MakeTime, out var penultimate);
-                            System.TimeSpan t = ultimate - penultimate;
-                            //更新Account表中IntervalTime
-                            await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
-                                    .FindOneAndUpdateAsync<Account>(account, "IntervalTime", t.ToString());
-                            //更新Account表中UseOfNumber
-                            await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
-                                    .FindOneAndUpdateAsync<Account>(account, "UseOfNumber", aBoardGameList1.Count.ToString());
+                            Log.Debug($"删除了aBoardGameList2[aBoardGameList2.Count - 1] {aBoardGameList2[aBoardGameList2.Count - 1].GameID}");
 
-                            //更新SandToyTable表
-                            sandToyTable = session.AddChild<SandToyTable>();
-                            sandToyTable.Number = 0;
-                            sandToyTable.BelongABoardGameID = aBoardGameList1[aBoardGameList1.Count - 1].GameID;
-                            await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<SandToyTable>(sandToyTable);
+                            await DBManagerComponent.Instance.GetZoneDB(session.DomainZone())
+                                    .Remove<ABoardGame>(aBoardGameList2[aBoardGameList2.Count - 1].Id);
                         }
 
                         #endregion
