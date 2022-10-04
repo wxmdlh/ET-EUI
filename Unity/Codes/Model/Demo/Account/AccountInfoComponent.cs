@@ -3,7 +3,9 @@
 namespace ET
 {
     /// <summary>
-    /// 保存令牌等信息
+    /// 保存令牌 登录账号Id
+    /// 在SceneFactory上添加
+    /// 登录成功时保存账号，上述信息
     /// </summary>
     [ChildType]
     [ComponentOf(typeof (Scene))]

@@ -60,10 +60,10 @@ namespace ET
                 return ErrorCode.ERR_NetWorkError;
             }
 
-            if (accountSession.Error != ErrorCode.ERR_Success)
+            if (a2CLoginAccount.Error != ErrorCode.ERR_Success)
             {
                 accountSession?.Dispose();
-                return accountSession.Error;
+                return a2CLoginAccount.Error;
             }
 
             //将该Session赋值给当前场景上的Session

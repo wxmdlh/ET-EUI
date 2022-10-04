@@ -2,8 +2,12 @@
 
 namespace ET
 {
-    [ComponentOf(typeof(Scene))]
-    public class TokenComponent:Entity,IAwake
+    /// <summary>
+    /// 用于存储每个账号的Token令牌信息
+    /// 挂在SceneFactory上
+    /// </summary>
+    [ComponentOf(typeof (Scene))]
+    public class TokenComponent: Entity, IAwake
     {
         public readonly Dictionary<long, string> TokenDic = new Dictionary<long, string>();
     }
