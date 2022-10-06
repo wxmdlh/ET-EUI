@@ -16,7 +16,7 @@ namespace ET
         {
             await ETTask.CompletedTask;
             Scene scene = EntitySceneFactory.CreateScene(id, instanceId, zone, sceneType, name, parent);
-
+            //为Scene添加MailBoxComponent 组件，使Scene由实体变为Actor具备通讯功能
             scene.AddComponent<MailBoxComponent, MailboxType>(MailboxType.UnOrderMessageDispatcher);
 
             switch (scene.SceneType)

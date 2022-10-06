@@ -24,6 +24,7 @@ namespace ET
             session.RemoveComponent<SessionAcceptTimeoutComponent>();
 
             //处理一个玩家的多次登录请求
+            //处理同一个玩家同一个连接同一种消息的多次请求
             if (session.GetComponent<SessionLockingComponent>() != null)
             {
                 response.Error = ErrorCode.ERR_RequestRepeatedly;
@@ -66,7 +67,7 @@ namespace ET
             //当在某个代码段中使用了类的实例，而希望无论因为什么原因，只要离开了这个代码段就自动调用这个类实例的Dispose。 要达到这样的目的，用try...catch来捕捉异常也是可以的，但用using也很方便。
             using (session.AddComponent<SessionLockingComponent>())
             {
-                //解决两个人同时创建一个账号时，数据库可能会保存两个同名的账号，这会导致查询时，错乱
+                //两个人从不同地方创建同一个账号时，会有两个session，运行两次Run()，就到导致一前一后创建两个同名的账号，从而导致查询时的错乱
                 //用于锁定，只有一个账号操作完后，另一个账号才能进来操作。给异步逻辑加个锁。
                 using (await CoroutineLockComponent.Instance.Wait(CoroutineLockType.LoginAccount, request.AccountName.Trim().GetHashCode()))
                 {
@@ -126,14 +127,16 @@ namespace ET
                         return;
                     }
 
-                    //实现顶号操作
+                    //实现顶号操作,同一个账号，前一个账号会被后一个账号登录后顶下来
                     long accoutnSessionInstanceId = session.DomainScene().GetComponent<AccountSessionsComponent>().Get(account.Id);
                     Session otherSession = Game.EventSystem.Get(accoutnSessionInstanceId) as Session;
+                    //只发送消息 单条消息使用示例
                     otherSession?.Send(new A2C_Disconnect() { Error = 0 });
                     otherSession?.Disconnect().Coroutine();
+                    //更新玩家，将先前玩家踢下线，更新后面玩家
                     session.DomainScene().Domain.GetComponent<AccountSessionsComponent>().Add(account.Id, session.InstanceId);
 
-                    //十分钟后还没操作，将玩家踢下线
+                    //十分钟后还没操作/还没进入游戏，将玩家踢下线
                     session.AddComponent<AccountCheckOutTimeComponent, long>(account.Id);
 
                     //生成每一个账号专属的Token令牌

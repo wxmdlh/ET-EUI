@@ -12,7 +12,7 @@
     public static class AccountSessionsComponentSystem
     {
         /// <summary>
-        /// 通过accountId得到instanceId
+        /// 通过accountId得到,该account所在的sessionid
         /// </summary>
         /// <param name="self"></param>
         /// <param name="accountId"></param>
@@ -28,7 +28,7 @@
         }
 
         /// <summary>
-        /// 将accountId和instanceId添加进字典
+        /// 将accountId和该account所在的sessionid添加进字典
         /// </summary>
         /// <param name="self"></param>
         /// <param name="accountId"></param>

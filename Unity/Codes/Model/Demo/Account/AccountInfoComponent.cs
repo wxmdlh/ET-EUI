@@ -4,7 +4,7 @@ namespace ET
 {
     /// <summary>
     /// 保存令牌 登录账号Id
-    /// 在SceneFactory上添加
+    /// 在客户端SceneFactory上添加
     /// 登录成功时保存账号，上述信息
     /// </summary>
     [ChildType]
