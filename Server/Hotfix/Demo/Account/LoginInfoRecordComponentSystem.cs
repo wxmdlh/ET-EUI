@@ -40,6 +40,12 @@
             return value;
         }
 
+        /// <summary>
+        /// 登录信息是否存在
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public static bool IsExist(this LoginInfoRecordComponent self, long key)
         {
             return self.AccountLoginInfoDict.ContainsKey(key);

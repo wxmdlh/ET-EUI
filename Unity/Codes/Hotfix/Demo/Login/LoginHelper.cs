@@ -79,7 +79,7 @@ namespace ET
         }
 
         /// <summary>
-        /// 获取服务器端信息
+        /// 获取服务器列表
         /// </summary>
         /// <param name="zoneScene"></param>
         /// <returns></returns>
@@ -110,6 +110,7 @@ namespace ET
             foreach (var serverInfoProto in a2CGetServerInfos.ServerInfosList)
             {
                 ServerInfo serverInfo = zoneScene.GetComponent<ServerInfosComponent>().AddChild<ServerInfo>();
+                //保存服务器中相关信息
                 serverInfo.FromMessage(serverInfoProto);
                 zoneScene.GetComponent<ServerInfosComponent>().Add(serverInfo);
             }
@@ -117,6 +118,12 @@ namespace ET
             return ErrorCode.ERR_Success;
         }
 
+        /// <summary>
+        /// 游戏客户端请求创建角色
+        /// </summary>
+        /// <param name="zoneScene"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static async ETTask<int> CreateRole(Scene zoneScene, string name)
         {
             A2C_CreateRole a2CCreateRole = null;

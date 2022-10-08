@@ -6,6 +6,9 @@
         Stop = 1,
     }
 
+    /// <summary>
+    /// 获取服务器列表类
+    /// </summary>
     [ChildType]
     public class ServerInfo: Entity, IAwake
     {

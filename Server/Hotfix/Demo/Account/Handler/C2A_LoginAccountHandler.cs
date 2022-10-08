@@ -115,6 +115,7 @@ namespace ET
                     //实现从客户端向登录账号中心服务器发送消息。
                     StartSceneConfig startSceneConfig = StartSceneConfigCategory.Instance.GetBySceneName(session.DomainZone(), "LoginCenter");
                     long loginCenterInstanceId = startSceneConfig.InstanceId;
+                    //Actor 消息发送组件ActorMessageSenderComponent
                     var loginAccountResponse =
                             (L2A_LoginAccountResponse) await ActorMessageSenderComponent.Instance.Call(loginCenterInstanceId,
                                 new A2L_LoginAccountRequest() { AccountId = account.InstanceId });

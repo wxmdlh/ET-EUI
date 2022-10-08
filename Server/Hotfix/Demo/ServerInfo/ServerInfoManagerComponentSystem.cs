@@ -38,12 +38,13 @@ namespace ET
         public static async ETTask Awake(this ServerInfoManagerComponent self)
         {
             var serverInfoList = await DBManagerComponent.Instance.GetZoneDB(self.DomainZone()).Query<ServerInfo>(d => true);
-            if (serverInfoList != null || serverInfoList.Count <= 0)
+            if (serverInfoList == null || serverInfoList.Count <= 0)
             {
                 Log.Error("ServerInfo count is zero");
                 
                 self.ServerInfos.Clear();
 
+                //得到所有服务器
                 var serverInfoConfigs = ServerInfoConfigCategory.Instance.GetAll();
 
                 foreach (var info in serverInfoConfigs.Values)
