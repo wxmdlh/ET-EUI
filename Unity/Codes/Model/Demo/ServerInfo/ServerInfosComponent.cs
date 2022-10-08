@@ -6,10 +6,11 @@ namespace ET
     /// 在客户端SceneFactory上添加
     /// 记录游戏客户端下发的区服信息
     /// </summary>
-    [ComponentOf(typeof(Scene))]
+    [ComponentOf(typeof (Scene))]
     [ChildType]
-    public class ServerInfosComponent:Entity,IAwake,IDestroy
+    public class ServerInfosComponent: Entity, IAwake, IDestroy
     {
         public List<ServerInfo> ServerInfoList = new List<ServerInfo>();
+        public int CurrentServerId = 0;
     }
 }

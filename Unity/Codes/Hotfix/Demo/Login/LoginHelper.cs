@@ -135,7 +135,7 @@ namespace ET
                     AccountId = zoneScene.GetComponent<AccountInfoComponent>().AccountId,
                     Token = zoneScene.GetComponent<AccountInfoComponent>().Token,
                     Name = name,
-                    ServerId = 1,
+                    ServerId = zoneScene.GetComponent<ServerInfosComponent>().CurrentServerId,
                 });
             }
             catch (Exception e)
@@ -149,6 +149,13 @@ namespace ET
                 Log.Error(a2CCreateRole.Error.ToString());
                 return a2CCreateRole.Error;
             }
+
+            //创建角色操作
+
+            RoleInfo newRoleInfo = zoneScene.GetComponent<RoleInfosComponent>().AddChild<RoleInfo>();
+            //通过FromMessage方法将 服务器端 Proto字段，转化为RoleInfo类中字段
+            newRoleInfo.FromMessage(a2CCreateRole.RoleInfo);
+            zoneScene.GetComponent<RoleInfosComponent>().RoleInfos.Add(newRoleInfo);
 
             return ErrorCode.ERR_Success;
         }
