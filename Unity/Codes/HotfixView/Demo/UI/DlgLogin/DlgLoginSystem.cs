@@ -51,7 +51,7 @@ namespace ET
 
                 //TODO...显示登录后的页面逻辑
                 self.DomainScene().GetComponent<UIComponent>().HideWindow(WindowID.WindowID_Login);
-                self.DomainScene().GetComponent<UIComponent>().ShowWindow(WindowID.WindowID_Lobby);
+                self.DomainScene().GetComponent<UIComponent>().ShowWindow(WindowID.WindowID_Server);
             }
             catch (Exception e)
             {

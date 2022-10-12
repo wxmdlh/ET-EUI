@@ -3,6 +3,8 @@ using System;
 namespace ET
 {
     [FriendClass(typeof (AccountInfoComponent))]
+    [FriendClass(typeof (RoleInfosComponent))]
+    [FriendClass(typeof (ServerInfosComponent))]
     public static class LoginHelper
     {
         // public static async ETTask Login(Scene zoneScene, string address, string account, string password)
@@ -156,6 +158,47 @@ namespace ET
             //通过FromMessage方法将 服务器端 Proto字段，转化为RoleInfo类中字段
             newRoleInfo.FromMessage(a2CCreateRole.RoleInfo);
             zoneScene.GetComponent<RoleInfosComponent>().RoleInfos.Add(newRoleInfo);
+
+            return ErrorCode.ERR_Success;
+        }
+
+        /// <summary>
+        /// 得到角色
+        /// </summary>
+        /// <param name="zoneScene"></param>
+        /// <returns></returns>
+        public static async ETTask<int> GetRoles(Scene zoneScene)
+        {
+            A2C_GetRoles a2CGetRoles = null;
+
+            try
+            {
+                a2CGetRoles = (A2C_GetRoles) await zoneScene.GetComponent<SessionComponent>().Session.Call(new C2A_GetRoles()
+                {
+                    AccountId = zoneScene.GetComponent<AccountInfoComponent>().AccountId,
+                    Token = zoneScene.GetComponent<AccountInfoComponent>().Token,
+                    ServerId = zoneScene.GetComponent<ServerInfosComponent>().CurrentServerId,
+                });
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+                return ErrorCode.ERR_NetWorkError;
+            }
+
+            if (a2CGetRoles.Error != ErrorCode.ERR_Success)
+            {
+                Log.Warning(a2CGetRoles.Error.ToString());
+                return a2CGetRoles.Error;
+            }
+
+            zoneScene.GetComponent<RoleInfosComponent>().RoleInfos.Clear();
+            foreach (var roleInfoProto in a2CGetRoles.RoleInfo)
+            {
+                RoleInfo roleInfo = zoneScene.GetComponent<RoleInfosComponent>().AddChild<RoleInfo>();
+                roleInfo.FromMessage(roleInfoProto);
+                zoneScene.GetComponent<RoleInfosComponent>().RoleInfos.Add(roleInfo);
+            }
 
             return ErrorCode.ERR_Success;
         }

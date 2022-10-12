@@ -35,13 +35,13 @@ namespace ET
      			}
      			if( this.m_E_ServerListLoopVerticalScrollRect == null )
      			{
-		    		this.m_E_ServerListLoopVerticalScrollRect = UIFindHelper.FindDeepChild<UnityEngine.UI.LoopVerticalScrollRect>(this.uiTransform.gameObject,"EGBackGround/E_ServerList");
+		    		this.m_E_ServerListLoopVerticalScrollRect = UIFindHelper.FindDeepChild<UnityEngine.UI.LoopVerticalScrollRect>(this.uiTransform.gameObject,"E_ServerList");
      			}
      			return this.m_E_ServerListLoopVerticalScrollRect;
      		}
      	}
 
-		public UnityEngine.UI.Button E_EnterServerButton
+		public UnityEngine.UI.Button E_ConfirmButton
      	{
      		get
      		{
@@ -50,15 +50,15 @@ namespace ET
      				Log.Error("uiTransform is null.");
      				return null;
      			}
-     			if( this.m_E_EnterServerButton == null )
+     			if( this.m_E_ConfirmButton == null )
      			{
-		    		this.m_E_EnterServerButton = UIFindHelper.FindDeepChild<UnityEngine.UI.Button>(this.uiTransform.gameObject,"EGBackGround/E_EnterServer");
+		    		this.m_E_ConfirmButton = UIFindHelper.FindDeepChild<UnityEngine.UI.Button>(this.uiTransform.gameObject,"E_Confirm");
      			}
-     			return this.m_E_EnterServerButton;
+     			return this.m_E_ConfirmButton;
      		}
      	}
 
-		public UnityEngine.UI.Image E_EnterServerImage
+		public UnityEngine.UI.Image E_ConfirmImage
      	{
      		get
      		{
@@ -67,11 +67,11 @@ namespace ET
      				Log.Error("uiTransform is null.");
      				return null;
      			}
-     			if( this.m_E_EnterServerImage == null )
+     			if( this.m_E_ConfirmImage == null )
      			{
-		    		this.m_E_EnterServerImage = UIFindHelper.FindDeepChild<UnityEngine.UI.Image>(this.uiTransform.gameObject,"EGBackGround/E_EnterServer");
+		    		this.m_E_ConfirmImage = UIFindHelper.FindDeepChild<UnityEngine.UI.Image>(this.uiTransform.gameObject,"E_Confirm");
      			}
-     			return this.m_E_EnterServerImage;
+     			return this.m_E_ConfirmImage;
      		}
      	}
 
@@ -79,15 +79,15 @@ namespace ET
 		{
 			this.m_EGBackGroundRectTransform = null;
 			this.m_E_ServerListLoopVerticalScrollRect = null;
-			this.m_E_EnterServerButton = null;
-			this.m_E_EnterServerImage = null;
+			this.m_E_ConfirmButton = null;
+			this.m_E_ConfirmImage = null;
 			this.uiTransform = null;
 		}
 
 		private UnityEngine.RectTransform m_EGBackGroundRectTransform = null;
 		private UnityEngine.UI.LoopVerticalScrollRect m_E_ServerListLoopVerticalScrollRect = null;
-		private UnityEngine.UI.Button m_E_EnterServerButton = null;
-		private UnityEngine.UI.Image m_E_EnterServerImage = null;
+		private UnityEngine.UI.Button m_E_ConfirmButton = null;
+		private UnityEngine.UI.Image m_E_ConfirmImage = null;
 		public Transform uiTransform = null;
 	}
 }

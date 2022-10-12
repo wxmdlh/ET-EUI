@@ -2,12 +2,12 @@
 
 namespace ET
 {
-    [FriendClass(typeof(ServerInfoManagerComponent))]
+    [FriendClass(typeof (ServerInfoManagerComponent))]
     public class C2A_GetServerInfosHandler: AMRpcHandler<C2A_GetServerInfos, A2C_GetServerInfos>
     {
         protected override async ETTask Run(Session session, C2A_GetServerInfos request, A2C_GetServerInfos response, Action reply)
         {
-            if (session.DomainScene().SceneType == SceneType.Account)
+            if (session.DomainScene().SceneType != SceneType.Account)
             {
                 Log.Error($"请求的Scene错误，当前Scene为：{session.DomainScene().SceneType}");
                 session.Dispose();
