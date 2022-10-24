@@ -63,5 +63,10 @@ namespace ET
         /// 角色名字重复
         /// </summary>
         public const int ERR_RoleNameSame = 200011;
+
+        /// <summary>
+        /// 角色不存在
+        /// </summary>
+        public const int ERR_RoleNotExist = 200012;
     }
 }

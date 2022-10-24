@@ -93,6 +93,7 @@ namespace ET
 
                 //关闭服务器列表选择页面，打开创建角色页面
                 self.ZoneScene().GetComponent<UIComponent>().HideWindow(WindowID.WindowID_Server);
+                self.ZoneScene().GetComponent<UIComponent>().ShowWindow(WindowID.WindowID_Roles);
             }
             catch (Exception e)
             {
