@@ -203,6 +203,11 @@ namespace ET
             return ErrorCode.ERR_Success;
         }
 
+        /// <summary>
+        /// 删除角色
+        /// </summary>
+        /// <param name="zoneScene"></param>
+        /// <returns></returns>
         public static async ETTask<int> DeleteRole(Scene zoneScene)
         {
             A2C_DeleteRole a2CDeleteRole = null;
@@ -238,6 +243,43 @@ namespace ET
             zoneScene.GetComponent<RoleInfosComponent>().RoleInfos.RemoveAt(index);
 
             await ETTask.CompletedTask;
+            return ErrorCode.ERR_Success;
+        }
+
+        /// <summary>
+        /// 得到Realm服务器上的Key和一个地址
+        /// </summary>
+        /// <param name="zoneScene"></param>
+        /// <returns></returns>
+        public static async ETTask<int> GetRelamKey(Scene zoneScene)
+        {
+            A2C_GetRealmKey a2CGetRealmKey = null;
+
+            try
+            {
+                a2CGetRealmKey = (A2C_GetRealmKey) await zoneScene.GetComponent<SessionComponent>().Session.Call(new C2A_GetRealmKey()
+                {
+                    Token = zoneScene.GetComponent<AccountInfoComponent>().Token,
+                    AccountId = zoneScene.GetComponent<AccountInfoComponent>().AccountId,
+                    ServerId = zoneScene.GetComponent<ServerInfosComponent>().CurrentServerId,
+                });
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+                return ErrorCode.ERR_NetWorkError;
+            }
+
+            if (a2CGetRealmKey.Error != ErrorCode.ERR_Success)
+            {
+                Log.Error(a2CGetRealmKey.Error.ToString());
+                return a2CGetRealmKey.Error;
+            }
+
+            //保存Realm令牌和地址
+            zoneScene.GetComponent<AccountInfoComponent>().RealmKey = a2CGetRealmKey.RealmKey;
+            zoneScene.GetComponent<AccountInfoComponent>().RealmAddressable = a2CGetRealmKey.RealmAddress;
+
             return ErrorCode.ERR_Success;
         }
     }
